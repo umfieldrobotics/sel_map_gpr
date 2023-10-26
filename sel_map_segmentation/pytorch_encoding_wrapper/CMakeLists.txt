@@ -30,7 +30,7 @@ ExternalProject_Add(
   GIT_REPOSITORY https://github.com/zhanghang1989/PyTorch-Encoding.git
   PREFIX ${ENCODING_BUILD_DIR}
   BINARY_DIR ${ENCODING_BUILD_DIR}/src/pytorch_encoding
-  GIT_TAG 331ecdd5306104614cb414b16fbcd9d1a8d40e1e
+  GIT_TAG c959dab8312b637fcc7edce83607acb4b0f82645 
   CONFIGURE_COMMAND ""
   BUILD_COMMAND 
     ${PYTHON} ${ENCODING_BUILD_DIR}/src/pytorch_encoding/setup.py build --build-lib ${ENCODING_BUILD_DIR}/build
