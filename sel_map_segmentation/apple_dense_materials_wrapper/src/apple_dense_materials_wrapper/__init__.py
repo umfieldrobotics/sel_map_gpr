@@ -1,0 +1,2 @@
+from .DenseMaterialsSegmentationNetwork import DenseMaterialsSegmentationNetwork as SemsegNetworkWrapper
+

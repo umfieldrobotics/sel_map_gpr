@@ -1,0 +1,3 @@
+[submodule "sel_map_segmentation/apple_dense_materials_wrapper/src/apple_dense_materials"]
+	path = sel_map_segmentation/apple_dense_materials_wrapper/src/apple_dense_materials
+	url = git@github.com:umfieldrobotics/ml-dms-dataset.git
