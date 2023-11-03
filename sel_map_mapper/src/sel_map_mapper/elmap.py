@@ -271,10 +271,10 @@ class Map:
         # Transform to map origin
         points[:,:3] = points[:,:3] - self.origin.location
 
-        pcd = o3d.geometry.PointCloud()
-        pcd.points = o3d.utility.Vector3dVector(points[:,:3])
-        axes = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.001, origin=[0, 0, 0])
-        o3d.visualization.draw_geometries([pcd, axes])
+        # pcd = o3d.geometry.PointCloud()
+        # pcd.points = o3d.utility.Vector3dVector(points[:,:3])
+        # axes = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.001, origin=[0, 0, 0])
+        # o3d.visualization.draw_geometries([pcd, axes])
         
         # Advance and clean the map (lazy can be true if the points pushed to the map is relatively constant)
         self.mesh.advance(classpoints=points, z_height=pose.location[2])
