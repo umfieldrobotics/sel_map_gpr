@@ -16,6 +16,7 @@
 # network weights
 *.pth
 *.pth.1
+ckpt/
 
 # images
 *.jpg
