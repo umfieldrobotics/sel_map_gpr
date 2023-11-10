@@ -13,7 +13,7 @@ from geometry_msgs.msg import PoseStamped, TransformStamped
 from tf2_msgs.msg import TFMessage
 import uuid
 # from sel_map_mesh import TriangularMesh
-# from sel_map_segmentation import CameraSensor
+from sel_map_segmentation import GPRSensor
 from sel_map_mesh_publisher import TriangularMeshPublisher, roscpp_init, roscpp_shutdown
 import numpy as np
 import threading
@@ -57,14 +57,15 @@ class SaveOptions():
 
 class Map:
     __slots__ = 'uuid', 'enableMat', 'saveOpts', 'thresholdElemToMove', 'timestamp', \
-                'pub_mesh', 'pub_costs', 'pub_camera', 'frame', 'mesh', 'origin', 'cached_origin', 'camera', 'lock', \
+                'pub_mesh', 'pub_costs', 'pub_camera', 'frame', 'mesh', 'origin', 'cached_origin', 'camera', 'gpr', 'lock', \
                 'vertices', 'normals', 'simplices', 'classes', 'meshMsg', 'heightCosts', 'pub_tf', 'map_tf_msg', \
                 'mesh_mat_service', 'materials', 'daemon_thread', 'thread_rate', 'save', 'publish', 'threaded', 'crash'
-    def __init__(self, mesh, camera=None, mesh_topic='mesh', mat_service='get_materials', enableMat = False, saveOpts=SaveOptions(), thresholdElemToMove=1, threadRate=20, threaded=True, mapCameraPosePublisher=None):
+    def __init__(self, mesh, camera=None, gpr=None, mesh_topic='mesh', mat_service='get_materials', enableMat = False, saveOpts=SaveOptions(), thresholdElemToMove=1, threadRate=20, threaded=True, mapCameraPosePublisher=None):
         # start roscpp
         roscpp_init()
         self.uuid = str(uuid.uuid4())
         self.enableMat = enableMat
+
 
         self.saveOpts = saveOpts
         if saveOpts.dir is not None:
@@ -124,6 +125,8 @@ class Map:
         self.camera = camera
         if camera is None:
             self.camera = CameraSensor()
+
+        self.gpr = GPRSensor()
 
         # For threading the publisher seperately
         self.lock = threading.Lock()
@@ -251,24 +254,32 @@ class Map:
         # calculate a new origin
         self.origin.location = self.origin.location.copy()
         self.origin.location[:2] -= elementShift * self.mesh.elementLength
+
+    
         
-    def update(self, pose, rgbd, intrinsic=None, R=None, min_depth=0, max_depth=5.0):
+    def update(self, camera_pose, rgbd, intrinsic=None, R=None, min_depth=0, max_depth=5.0):
         if self.crash:
             raise Exception('Map Daemon Thread Crashed!')
         # Shift the mesh if we need to
-        self.shiftIfNeeded(pose)
+        self.shiftIfNeeded(camera_pose)
 
         # Get the segmented points (rgbd is a tuple of (rgb, depth))
         poseCameraToMap = Pose()
-        poseCameraToMap.location = pose.location - self.origin.location
-        poseCameraToMap.rotation = pose.rotation
+        poseCameraToMap.location = camera_pose.location - self.origin.location
+        poseCameraToMap.rotation = camera_pose.rotation
         self.camera.setPoseCameraToMap(poseCameraToMap)
         self.camera.updateSensorMeasurements(rgbd[0], rgbd[1])
-        points = self.camera.getProjectedPointCloudWithLabels(intrinsic=intrinsic, R=R, min_depth=min_depth, max_depth=max_depth)
-        # Shift and rotate as needed
-        points[:,:3] = pose.location + np.dot(points[:,:3], np.transpose(pose.rotation))
+        #points = self.camera.getProjectedPointCloudWithLabels(intrinsic=intrinsic, R=R, min_depth=min_depth, max_depth=max_depth)
+        points = self.gpr.getProjectedPointCloudWithLabels()
         
-        # Transform to map origin
+        # gpr pose is just a static transform from camera
+        cam_to_gpr_transform = np.array([-0.864, -0.017, -0.556])
+
+        # Shift and rotate as needed
+        # points[:,:3] = (camera_pose.location + np.dot(points[:,:3], np.transpose(camera_pose.rotation))
+        points[:,:3] = (camera_pose.location - cam_to_gpr_transform) - points[:,:3]
+
+        # Transform to map origin (sensor frame to world frame)
         points[:,:3] = points[:,:3] - self.origin.location
 
         # pcd = o3d.geometry.PointCloud()
@@ -277,18 +288,18 @@ class Map:
         # o3d.visualization.draw_geometries([pcd, axes])
         
         # Advance and clean the map (lazy can be true if the points pushed to the map is relatively constant)
-        self.mesh.advance(classpoints=points, z_height=pose.location[2])
+        self.mesh.advance(classpoints=points, z_height=camera_pose.location[2])
         self.mesh.clean(lazy=True)
 
         # Publish the camera pose synchronously
         if self.pub_camera is not None:
             poseMsg = PoseStamped()
             poseMsg.header = Header(frame_id='sel_map',stamp=rospy.Time.now())
-            poseMsg.pose.position.x = pose.location[0]# - self.frame.origin.location[0]
-            poseMsg.pose.position.y = pose.location[1]# - self.frame.origin.location[1]
-            poseMsg.pose.position.z = pose.location[2]# - self.frame.origin.location[2]
+            poseMsg.pose.position.x = camera_pose.location[0]# - self.frame.origin.location[0]
+            poseMsg.pose.position.y = camera_pose.location[1]# - self.frame.origin.location[1]
+            poseMsg.pose.position.z = camera_pose.location[2]# - self.frame.origin.location[2]
             rot = np.identity(4)
-            rot[:3,:3] = pose.rotation
+            rot[:3,:3] = camera_pose.rotation
             quaterion = quaternion_from_matrix(rot)
             poseMsg.pose.orientation.x = quaterion[0]
             poseMsg.pose.orientation.y = quaterion[1]
