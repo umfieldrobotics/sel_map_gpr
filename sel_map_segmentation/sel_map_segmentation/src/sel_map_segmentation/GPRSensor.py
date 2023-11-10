@@ -24,7 +24,7 @@ class GPRSensor():
     def getProjectedPointCloudWithLabels(self):
         # generate square point cloud
 
-        x, y, z = np.mgrid[-3:3:0.05, -3:3:0.05, 1:2:1]
+        x, y, z = np.mgrid[-1:1:0.05, -1:1:0.05, 1:2:1]
         var = np.empty(x.flatten().shape[0])
         var.fill(7)
         score = np.empty(x.flatten().shape[0])

@@ -28,7 +28,7 @@ threaded = True
 publish = True
 tfBuffer = tf2_ros.Buffer()
 
-def syncedCallback(rgb, depth, info, pose=None, meta=None):
+def syncedCamCallback(rgb, depth, info, pose=None, meta=None):
     global map, cv_bridge, firstPose, rotate, savingFlag, initialTime, last_save, world_base
     # get poses ready #TODO bring robot back into picture
     if pose is None:
@@ -50,7 +50,7 @@ def syncedCallback(rgb, depth, info, pose=None, meta=None):
         rot = quaternion_matrix([pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w])
         rot = rot[:3,:3]
         location = np.array([pose.pose.position.x, pose.pose.position.y, pose.pose.position.z])
-    rospy.loginfo("[sel_map] Message received!")
+    rospy.loginfo("[sel_map] Camera message received!")
     pose = Pose(location=location, rotation=rot)
     # Set initial pose.
     if firstPose:
@@ -81,8 +81,11 @@ def syncedCallback(rgb, depth, info, pose=None, meta=None):
 
     # Update the map
     # indoor data seems to have negative depth values resulting in a seg fault
-    map.update(pose, rgbd, intrinsic=intrinsic, R=R, min_depth=0.5, max_depth=8.0)
-    
+    try:
+        map.update(camera_pose=pose, rgbd=rgbd, intrinsic=intrinsic, R=R, min_depth=0.5, max_depth=8.0)
+    except Exception as e:
+        print(e)
+
     # Queue a new publish (without saving for now)
     if savingFlag:
         timestamp = (rospy.Time.now() - initialTime)
@@ -94,6 +97,57 @@ def syncedCallback(rgb, depth, info, pose=None, meta=None):
             map.queueSavePublish(save=False, publish=publish)
     else:
         map.queueSavePublish(save=False, publish=publish)
+
+
+def syncedGPRCallback(rgb, pose=None):
+    global map, cv_bridge, firstPose, rotate, savingFlag, initialTime, last_save, world_base
+    # get poses ready #TODO bring robot back into picture
+    if pose is None:
+        try:
+            tf_stamped = tfBuffer.lookup_transform(world_base, rgb.header.frame_id, rgb.header.stamp, rospy.Duration(0.01))
+        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+            return
+        location = tf_stamped.transform.translation
+        location = np.array([location.x, location.y, location.z])
+        # re-orient transform to match camera frame.
+        rot = tf_stamped.transform.rotation
+        rot = quaternion_matrix([rot.x, rot.y, rot.z, rot.w])
+        rot = rot[:3,:3] @ np.array([[0, -1, 0], [0, 0, -1], [1, 0, 0]])
+    else:
+        try:
+            pose = pose.pose # Adapt for with covariance, but ignore that for now.
+        except:
+            pass
+        rot = quaternion_matrix([pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w])
+        rot = rot[:3,:3]
+        location = np.array([pose.pose.position.x, pose.pose.position.y, pose.pose.position.z])
+
+    rospy.loginfo("[sel_map] GPR message received!")
+    pose = Pose(location=location, rotation=rot)
+    
+    # Set initial pose.
+    if firstPose:
+        map.frame.origin.location[0:2] = location[0:2]
+        initialTime = rospy.Time.now()
+        firstPose = False
+    
+    # GPR data preparation
+
+    # Update the map
+    map.update(pose, gpr=True) # pass GPR through here eventually
+
+    # Queue a new publish (without saving for now)
+    if savingFlag:
+        timestamp = (rospy.Time.now() - initialTime)
+        interval = timestamp - last_save
+        if interval >= save_interval:
+            map.queueSavePublish(save=savingFlag, publish=publish, timestamp=timestamp)
+            last_save = timestamp
+        else:
+            map.queueSavePublish(save=False, publish=publish)
+    else:
+        map.queueSavePublish(save=False, publish=publish)
+
 
 def sel_map_node(mesh_bounds, elementLength, thresholdElemToMove):
     global map, cv_bridge, firstPose, rotate, savingFlag, save_interval, world_base
@@ -138,21 +192,33 @@ def sel_map_node(mesh_bounds, elementLength, thresholdElemToMove):
     rgb_sub = message_filters.Subscriber(cameras["image_rectified"], Image)
     depth_sub = message_filters.Subscriber(cameras["depth_registered"], Image)
     info_sub = message_filters.Subscriber(cameras["camera_info"], CameraInfo)
-    sub_list = [rgb_sub, depth_sub, info_sub]
+    cam_sub_list = [rgb_sub, depth_sub, info_sub]
+
+    gpr_sub = message_filters.Subscriber(cameras["image_rectified"], Image) #TODO CHANGE THIS TO GPR
+    gpr_sub_list = [gpr_sub]
+
     if "pose_with_covariance" in cameras \
         and cameras["pose_with_covariance"] is not None \
         and len(cameras["pose_with_covariance"]) > 0:
         pose_sub = message_filters.Subscriber(cameras["pose_with_covariance"], PoseWithCovarianceStamped)
-        sub_list.append(pose_sub)
+        cam_sub_list.append(pose_sub)
+        gpr_sub_list.append(pose_sub)
     elif "pose" in cameras \
         and cameras["pose"] is not None \
         and len(cameras["pose"]) > 0:
         pose_sub = message_filters.Subscriber(cameras["pose"], Pose)
-        sub_list.append(pose_sub)
+        cam_sub_list.append(pose_sub)
+        gpr_sub_list.append(pose_sub)
+    else:
+        print('no poses')
+
 
     # Subscribe
-    sync_sub = message_filters.ApproximateTimeSynchronizer(sub_list, queue_size=queue_size, slop=sync_slop)
-    sync_sub.registerCallback(syncedCallback)
+    sync_cam_sub = message_filters.ApproximateTimeSynchronizer(cam_sub_list, queue_size=queue_size, slop=sync_slop)
+    sync_cam_sub.registerCallback(syncedCamCallback)
+
+    sync_gpr_sub = message_filters.ApproximateTimeSynchronizer(gpr_sub_list, queue_size=queue_size, slop=sync_slop)
+    sync_gpr_sub.registerCallback(syncedGPRCallback)
     rospy.loginfo("[sel_map] Callbacks registered, awaiting...")
 
     # Spin
@@ -172,3 +238,5 @@ if __name__ == '__main__':
     except rospy.ROSInterruptException:
         del map
         pass
+    except Exception as e:
+        print(e)

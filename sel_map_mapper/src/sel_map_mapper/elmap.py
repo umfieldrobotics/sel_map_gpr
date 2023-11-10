@@ -254,38 +254,49 @@ class Map:
         # calculate a new origin
         self.origin.location = self.origin.location.copy()
         self.origin.location[:2] -= elementShift * self.mesh.elementLength
-
     
         
-    def update(self, camera_pose, rgbd, intrinsic=None, R=None, min_depth=0, max_depth=5.0):
+    def update(self, camera_pose=None, rgbd=None, intrinsic=None, R=None, min_depth=0, max_depth=5.0, gpr=False):
         if self.crash:
             raise Exception('Map Daemon Thread Crashed!')
         # Shift the mesh if we need to
         self.shiftIfNeeded(camera_pose)
 
-        # Get the segmented points (rgbd is a tuple of (rgb, depth))
-        poseCameraToMap = Pose()
-        poseCameraToMap.location = camera_pose.location - self.origin.location
-        poseCameraToMap.rotation = camera_pose.rotation
-        self.camera.setPoseCameraToMap(poseCameraToMap)
-        self.camera.updateSensorMeasurements(rgbd[0], rgbd[1])
-        #points = self.camera.getProjectedPointCloudWithLabels(intrinsic=intrinsic, R=R, min_depth=min_depth, max_depth=max_depth)
-        points = self.gpr.getProjectedPointCloudWithLabels()
+        # gpr pose is just a static transform from camera TODO make this dynamic
+        cam_to_gpr_transform = np.array([-0.864, -0.017, -0.606])
         
-        # gpr pose is just a static transform from camera
-        cam_to_gpr_transform = np.array([-0.864, -0.017, -0.556])
+        if gpr is True:
+            points = self.gpr.getProjectedPointCloudWithLabels()
 
-        # Shift and rotate as needed
-        # points[:,:3] = (camera_pose.location + np.dot(points[:,:3], np.transpose(camera_pose.rotation))
-        points[:,:3] = (camera_pose.location - cam_to_gpr_transform) - points[:,:3]
+            # Shift and rotate as needed
+            points[:,:3] = (camera_pose.location - cam_to_gpr_transform) - points[:,:3]
 
-        # Transform to map origin (sensor frame to world frame)
-        points[:,:3] = points[:,:3] - self.origin.location
+            # Transform to map origin (sensor frame to world frame)
+            points[:,:3] = points[:,:3] - self.origin.location
+        else:
+            # Get the segmented points (rgbd is a tuple of (rgb, depth))
+            poseCameraToMap = Pose()
+            poseCameraToMap.location = camera_pose.location - self.origin.location
+            poseCameraToMap.rotation = camera_pose.rotation
+            self.camera.setPoseCameraToMap(poseCameraToMap)
+            self.camera.updateSensorMeasurements(rgbd[0], rgbd[1])
+
+            points = self.camera.getProjectedPointCloudWithLabels(intrinsic=intrinsic, R=R, min_depth=min_depth, max_depth=max_depth)
+
+            # Shift and rotate as needed
+            points[:,:3] = camera_pose.location + np.dot(points[:,:3], np.transpose(camera_pose.rotation))
+
+            # Transform to map origin (sensor frame to world frame)
+            points[:,:3] = points[:,:3] - self.origin.location
 
         # pcd = o3d.geometry.PointCloud()
         # pcd.points = o3d.utility.Vector3dVector(points[:,:3])
         # axes = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.001, origin=[0, 0, 0])
         # o3d.visualization.draw_geometries([pcd, axes])
+
+        # TODO: FIGURE OUT HOW TO PASS WHETHER IT"S CAM OR GPR
+        if gpr is True:
+            points = np.concatenate((points, points, points, points, points, points), axis=0)
         
         # Advance and clean the map (lazy can be true if the points pushed to the map is relatively constant)
         self.mesh.advance(classpoints=points, z_height=camera_pose.location[2])
