@@ -25,6 +25,8 @@ from copy import deepcopy, copy
 
 from tf.transformations import quaternion_from_matrix
 
+from scipy.spatial.transform import Rotation
+
 # Helper classes to slightly speed up rospy
 class Point():
     __slots__ = __fields__ = 'x', 'y', 'z'
@@ -256,23 +258,31 @@ class Map:
         self.origin.location[:2] -= elementShift * self.mesh.elementLength
     
         
-    def update(self, camera_pose=None, rgbd=None, intrinsic=None, R=None, min_depth=0, max_depth=5.0, gpr=False):
+    def update(self, camera_pose=None, rgbd=None, intrinsic=None, R=None, min_depth=0, max_depth=5.0, gpr=False, gpr_trace=None):
         if self.crash:
             raise Exception('Map Daemon Thread Crashed!')
         # Shift the mesh if we need to
         self.shiftIfNeeded(camera_pose)
 
         # gpr pose is just a static transform from camera TODO make this dynamic
-        cam_to_gpr_transform = np.array([-0.864, -0.017, -0.606])
+        noggin_to_footprint = np.array([0.648, 0, -0.083]) # this is in the noggin frame
         
-        if gpr is True:
-            points = self.gpr.getProjectedPointCloudWithLabels()
+        if gpr is True: # rather confusing but actually for the gpr the camera_pose is the transform from the odom to base_footprint
+            points = self.gpr.getProjectedPointCloudWithLabels(gpr_trace=gpr_trace)
 
-            # Shift and rotate as needed
-            points[:,:3] = (camera_pose.location - cam_to_gpr_transform) - points[:,:3]
+            # rotate and translate from noggin_link frame to base_footprint
+            rot_noggin_to_footprint = Rotation.from_euler('xyz', [3.141593, 0, 3.141593]).as_matrix()
+            points[:,:3] = np.dot(points[:,:3], rot_noggin_to_footprint.T) + noggin_to_footprint
+
+            # rotate and translate from base_footprint to noggin_link
+            rot_euler = Rotation.from_quat(camera_pose.rotation).as_euler('xyz')
+            rot_footprint_to_odom = Rotation.from_euler('xyz', rot_euler).as_matrix()
+
+            points[:,:3] = np.dot(points[:,:3], rot_footprint_to_odom.T) + camera_pose.location
 
             # Transform to map origin (sensor frame to world frame)
             points[:,:3] = points[:,:3] - self.origin.location
+
         else:
             # Get the segmented points (rgbd is a tuple of (rgb, depth))
             poseCameraToMap = Pose()
@@ -296,7 +306,7 @@ class Map:
 
         # TODO: FIGURE OUT HOW TO PASS WHETHER IT"S CAM OR GPR
         if gpr is True:
-            points = np.concatenate((points, points, points, points, points, points), axis=0)
+            points = np.concatenate((points, points), axis=0)
         
         # Advance and clean the map (lazy can be true if the points pushed to the map is relatively constant)
         self.mesh.advance(classpoints=points, z_height=camera_pose.location[2])
@@ -379,7 +389,7 @@ class Map:
                     pickle.dump(self.frame, fp)
                 self.frame.id += 1
                 toc = time.perf_counter()
-                print("save time", toc-tic)
+                # print("save time", toc-tic)
 
             if self.publish:
                 rospy.loginfo("[sel_map] Publishing...")
@@ -410,7 +420,7 @@ class Map:
                 self.vertices[:,:2] += self.frame.origin.location[:2]
                 self.pub_mesh.publish(self.vertices, self.simplices)
                 toc = time.perf_counter()
-                print("publish time", toc-tic)
+                # print("publish time", toc-tic)
                 # Cache the origin
                 # self.cached_origin.location = frame.origin.location
                 # Map transform

@@ -2,6 +2,7 @@ import rospy
 import message_filters
 from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import PoseWithCovarianceStamped, Pose
+from husky_gpr.msg import GPRTrace
 from tf.transformations import quaternion_matrix
 from sel_map_mapper import Pose, Mapper, SaveOptions
 from sel_map_mesh import TriangularMesh
@@ -99,32 +100,23 @@ def syncedCamCallback(rgb, depth, info, pose=None, meta=None):
         map.queueSavePublish(save=False, publish=publish)
 
 
-def syncedGPRCallback(rgb, pose=None):
+def unsyncedGPRCallback(gpr_trace):
     global map, cv_bridge, firstPose, rotate, savingFlag, initialTime, last_save, world_base
     # get poses ready #TODO bring robot back into picture
-    if pose is None:
-        try:
-            tf_stamped = tfBuffer.lookup_transform(world_base, rgb.header.frame_id, rgb.header.stamp, rospy.Duration(0.01))
-        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-            return
-        location = tf_stamped.transform.translation
-        location = np.array([location.x, location.y, location.z])
-        # re-orient transform to match camera frame.
-        rot = tf_stamped.transform.rotation
-        rot = quaternion_matrix([rot.x, rot.y, rot.z, rot.w])
-        rot = rot[:3,:3] @ np.array([[0, -1, 0], [0, 0, -1], [1, 0, 0]])
-    else:
-        try:
-            pose = pose.pose # Adapt for with covariance, but ignore that for now.
-        except:
-            pass
-        rot = quaternion_matrix([pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w])
-        rot = rot[:3,:3]
-        location = np.array([pose.pose.position.x, pose.pose.position.y, pose.pose.position.z])
+    try:
+        tf_stamped = tfBuffer.lookup_transform(world_base, 'base_footprint', gpr_trace.header.stamp, rospy.Duration(0.1)) # target_frame, source_frame
+    except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
+        rospy.logwarn('TF exception in GPR callback!')
+
+    location = tf_stamped.transform.translation
+    location = np.array([location.x, location.y, location.z])
+    rot = tf_stamped.transform.rotation
+    rot = np.array([rot.x, rot.y, rot.z, rot.w])
+
+    pose = Pose(location=location, rotation=rot)
 
     rospy.loginfo("[sel_map] GPR message received!")
-    pose = Pose(location=location, rotation=rot)
-    
+
     # Set initial pose.
     if firstPose:
         map.frame.origin.location[0:2] = location[0:2]
@@ -134,7 +126,7 @@ def syncedGPRCallback(rgb, pose=None):
     # GPR data preparation
 
     # Update the map
-    map.update(pose, gpr=True) # pass GPR through here eventually
+    map.update(camera_pose=pose, gpr=True, gpr_trace=gpr_trace)
 
     # Queue a new publish (without saving for now)
     if savingFlag:
@@ -194,21 +186,16 @@ def sel_map_node(mesh_bounds, elementLength, thresholdElemToMove):
     info_sub = message_filters.Subscriber(cameras["camera_info"], CameraInfo)
     cam_sub_list = [rgb_sub, depth_sub, info_sub]
 
-    gpr_sub = message_filters.Subscriber(cameras["image_rectified"], Image) #TODO CHANGE THIS TO GPR
-    gpr_sub_list = [gpr_sub]
-
     if "pose_with_covariance" in cameras \
         and cameras["pose_with_covariance"] is not None \
         and len(cameras["pose_with_covariance"]) > 0:
-        pose_sub = message_filters.Subscriber(cameras["pose_with_covariance"], PoseWithCovarianceStamped)
+        pose_sub = message_filters.Subscriber(cameras["unsyncedGPRCallbackpose_with_covariance"], PoseWithCovarianceStamped)
         cam_sub_list.append(pose_sub)
-        gpr_sub_list.append(pose_sub)
     elif "pose" in cameras \
         and cameras["pose"] is not None \
         and len(cameras["pose"]) > 0:
         pose_sub = message_filters.Subscriber(cameras["pose"], Pose)
         cam_sub_list.append(pose_sub)
-        gpr_sub_list.append(pose_sub)
     else:
         print('no poses')
 
@@ -217,8 +204,9 @@ def sel_map_node(mesh_bounds, elementLength, thresholdElemToMove):
     sync_cam_sub = message_filters.ApproximateTimeSynchronizer(cam_sub_list, queue_size=queue_size, slop=sync_slop)
     sync_cam_sub.registerCallback(syncedCamCallback)
 
-    sync_gpr_sub = message_filters.ApproximateTimeSynchronizer(gpr_sub_list, queue_size=queue_size, slop=sync_slop)
-    sync_gpr_sub.registerCallback(syncedGPRCallback)
+    # normal subscriber for gpr since there's just one topic
+    rospy.Subscriber("/gpr/traces", GPRTrace, unsyncedGPRCallback, queue_size=queue_size)
+
     rospy.loginfo("[sel_map] Callbacks registered, awaiting...")
 
     # Spin

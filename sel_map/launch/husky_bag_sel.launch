@@ -1,14 +1,14 @@
 <?xml version="1.0" ?>
 <launch>
   <!-- Mesh Bounds -->
-  <arg name="bound_xy" default="20"/>
+  <arg name="bound_xy" default="10"/>
   <arg name="bound_z" default="4"/>
   <arg name="elem_size" default="0.05"/>
   <arg name="threshold_elem_move" default="10"/>
   <arg name="point_limit"  default="20"/>
 
   <!-- Data Specific Properties -->
-  <arg name="terrain_properties"  default="csail_semseg_properties.yaml"/>
+  <arg name="terrain_properties"  default="ade20k_properties.yaml"/>
   <arg name="colorscale"  default="use_properties.yaml"/>
   <arg name="robot_config" default="husky_config.yaml"/>
   <arg name="semseg_config"         default="CSAIL_ResNet50ppm_ADE_full.yaml"/>
@@ -20,7 +20,7 @@
   <!-- Current version of mesh_tools crashes with this on, so we provide our own version of rviz-map-plugin -->
 
   <!-- Subscriber Properties -->
-  <arg name="sync_slop"             default="1"/>
+  <arg name="sync_slop"             default="2"/>
   <arg name="queue_size"            default="50"/>
 
   <!-- Publisher Properties -->
