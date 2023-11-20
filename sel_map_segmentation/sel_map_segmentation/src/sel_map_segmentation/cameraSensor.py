@@ -29,6 +29,7 @@ class CameraSensor():
 		self.rgb = None
 		self.depth = None
 		self.scores = None
+		self.mean_pred = 0.5
 		
 		wrapper_package 		= rospy.get_param("semseg/package", "")
 		model_name 				= rospy.get_param("semseg/model", "")
@@ -60,7 +61,7 @@ class CameraSensor():
 
 	def runSemanticSegmentation(self, vis=False, vispath=None):
 		warnings.simplefilter("ignore")
-		self.scores = self.network.runSegmentation(Image.fromarray(self.rgb), return_numpy=not self.onGPU, one_hot=self.onehot_projection)
+		self.scores, self.mean_pred = self.network.runSegmentation(Image.fromarray(self.rgb), return_numpy=not self.onGPU, one_hot=self.onehot_projection)
 		warnings.simplefilter("default")
 
 		if vis and vispath:
@@ -258,7 +259,7 @@ class CameraSensor():
 			# Reduce unneccesary memory copies
 			point_cloud_with_labels = np.column_stack((pc, self.computePointCovariance_test(pc), scores))
 
-		return point_cloud_with_labels
+		return point_cloud_with_labels, self.mean_pred
 
 	def getProjectedPointCloudWithoutLabels(self):
 		pc = self.projectMeasurementsIntoSensorFrame(semseg=False)

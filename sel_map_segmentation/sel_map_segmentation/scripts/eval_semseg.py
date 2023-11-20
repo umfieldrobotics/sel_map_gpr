@@ -69,7 +69,7 @@ if __name__ == '__main__':
         image = Image.fromarray(img)
         
         tic = time.perf_counter()
-        scores = network.runSegmentation(image, return_numpy=result_to_cpu)
+        scores, mean_pred = network.runSegmentation(image, return_numpy=result_to_cpu)
         toc = time.perf_counter()
 
         delta = toc-tic

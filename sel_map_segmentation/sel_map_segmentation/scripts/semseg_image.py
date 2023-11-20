@@ -96,7 +96,7 @@ if __name__ == '__main__':
                 img = Image.open(os.path.join(input_filename, infile_name)).convert('RGB')
             else:
                 img = Image.open(infile_name).convert('RGB')
-            output = network.runSegmentation(img, return_numpy=False)
+            output, mean_pred = network.runSegmentation(img, return_numpy=False)
             labels = torch.max(output, 0)[1].cpu().numpy()
         
         mask = Image.fromarray(labels.squeeze().astype('uint8'))

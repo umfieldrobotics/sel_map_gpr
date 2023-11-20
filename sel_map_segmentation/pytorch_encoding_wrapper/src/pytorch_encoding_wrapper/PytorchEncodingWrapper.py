@@ -32,13 +32,17 @@ class PytorchEncodingWrapper():
             output = self.model.evaluate(img)
         
             # Perform one-hot encoding if needed
+            # calculate the average probability across all the pixels for the predicted class
             scores = output.squeeze(0)
+            values, indices = torch.softmax(scores, dim=0).max(axis=0)
+            mean = torch.mean(values).cpu().item()
             if one_hot and return_numpy:
-                scores = torch.argmax(scores, 0, keepdim=True)
+                # scores = torch.argmax(scores, 0, keepdim=True)
+                scores = indices
 
         # Crop and return the scores
         if return_numpy:
-            return scores.data.cpu().numpy()[:,:height,:width]
+            return scores.data.cpu().numpy()[:,:height,:width], mean
         else:
-            return scores[:,:height,:width]
+            return scores[:,:height,:width], mean
 

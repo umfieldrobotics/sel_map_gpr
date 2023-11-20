@@ -268,7 +268,7 @@ class Map:
         noggin_to_footprint = np.array([0.648, 0, -0.083]) # this is in the noggin frame
         
         if gpr is True: # rather confusing but actually for the gpr the camera_pose is the transform from the odom to base_footprint
-            points = self.gpr.getProjectedPointCloudWithLabels(gpr_trace=gpr_trace)
+            points, mean_pred = self.gpr.getProjectedPointCloudWithLabels(gpr_trace=gpr_trace)
 
             # rotate and translate from noggin_link frame to base_footprint
             rot_noggin_to_footprint = Rotation.from_euler('xyz', [3.141593, 0, 3.141593]).as_matrix()
@@ -291,7 +291,7 @@ class Map:
             self.camera.setPoseCameraToMap(poseCameraToMap)
             self.camera.updateSensorMeasurements(rgbd[0], rgbd[1])
 
-            points = self.camera.getProjectedPointCloudWithLabels(intrinsic=intrinsic, R=R, min_depth=min_depth, max_depth=max_depth)
+            points, mean_pred = self.camera.getProjectedPointCloudWithLabels(intrinsic=intrinsic, R=R, min_depth=min_depth, max_depth=max_depth)
 
             # Shift and rotate as needed
             points[:,:3] = camera_pose.location + np.dot(points[:,:3], np.transpose(camera_pose.rotation))
@@ -305,8 +305,8 @@ class Map:
         # o3d.visualization.draw_geometries([pcd, axes])
 
         # TODO: FIGURE OUT HOW TO PASS WHETHER IT"S CAM OR GPR
-        if gpr is True:
-            points = np.concatenate((points, points), axis=0)
+        # if gpr is True:
+        #     points = np.concatenate((points, points), axis=0)
         
         # Advance and clean the map (lazy can be true if the points pushed to the map is relatively constant)
         self.mesh.advance(classpoints=points, z_height=camera_pose.location[2])

@@ -31,6 +31,7 @@ class GPRSensor():
 
         self.model.eval()
 
+    # Return the predicted class of the image and the probability output from the network
     def runClassification(self, gpr_image):
         # Take gpr radargram image from numpy array to tensor
         gpr_image = cv2.merge([gpr_image, gpr_image, gpr_image]).transpose((2, 0, 1))
@@ -55,10 +56,12 @@ class GPRSensor():
         map_ade20k = [6, 11, 9, 46]
 
         pred_mapped = map_ade20k[pred.item()]
+        pred_probability = probabilities[0][pred.item()].item()
+        print(pred_probability)
 
         print(pred_mapped)
     
-        return pred_mapped
+        return pred_mapped, pred_probability
     
     def getProjectedPointCloudWithLabels(self, gpr_trace=None):
         gpr_trace = np.array(list(gpr_trace.trace))
@@ -71,7 +74,7 @@ class GPRSensor():
         if self.cumulative_traces.shape[1] >= 32 :
             cv2.imwrite('/home/anjashep-frog-lab/Desktop/trace.png', np.array(self.cumulative_traces[70:102,-32:]))
 
-            pred = self.runClassification(np.array(self.cumulative_traces[70:102,-32:]))
+            pred, prob = self.runClassification(np.array(self.cumulative_traces[70:102,-32:]))
             # generate square point cloud
         else:
             return None
@@ -87,4 +90,4 @@ class GPRSensor():
         score.fill(pred)
         pc = np.vstack((x.flatten(), y.flatten(), z.flatten(), var, score)).T
 
-        return pc
+        return pc, prob
