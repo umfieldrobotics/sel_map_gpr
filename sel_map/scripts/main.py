@@ -200,7 +200,6 @@ def sel_map_node(mesh_bounds, elementLength, thresholdElemToMove):
     else:
         print('no poses')
 
-
     # Subscribe
     sync_cam_sub = message_filters.ApproximateTimeSynchronizer(cam_sub_list, queue_size=queue_size, slop=sync_slop)
     sync_cam_sub.registerCallback(syncedCamCallback)
