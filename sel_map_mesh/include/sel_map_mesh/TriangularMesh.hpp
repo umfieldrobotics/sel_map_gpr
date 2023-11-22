@@ -71,13 +71,13 @@ namespace sel_map::mesh{
         //sel_map::core::ElemArray<double, 3> points;
         //sel_map::core::ElemArray<double, sel_map::core::ElemArrayDynamic> classifications;
         Eigen::ArrayXi generatePointBinning(const Eigen::Ref<const RowArray_t, Eigen::Aligned16>& points);
-	    void advance(const Eigen::Ref<const RowArray_t, Eigen::Aligned16>& points, double z_height);
+	    void advance(const Eigen::Ref<const RowArray_t, Eigen::Aligned16>& points, double mean_pred, double z_height);
 
         /*
         Given points of pointtype, adds them to the Element they are projected into.
         */
         //Identifies the pointtype by size_el - #cols
-        std::vector<unsigned int> addPointsToMesh(const Eigen::Ref<const RowArray_t, Eigen::Aligned16>& points);
+        std::vector<unsigned int> addPointsToMesh(const Eigen::Ref<const RowArray_t, Eigen::Aligned16>& points, double mean_pred);
 
         /*
 		Computes the vertex height mean and variance. Kernalized epsilon-sampling is

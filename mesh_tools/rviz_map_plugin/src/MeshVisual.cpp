@@ -104,7 +104,7 @@ MeshVisual::MeshVisual(rviz::DisplayContext* context, size_t displayID, size_t m
   , m_texture_coords_enabled(false)
   , m_normalsScalingFactor(1)
 {
-  ROS_INFO("Creating MeshVisual %lu_TexturedMesh_%lu_%lu", m_prefix, m_postfix, m_random);
+  // ROS_INFO("Creating MeshVisual %lu_TexturedMesh_%lu_%lu", m_prefix, m_postfix, m_random);
 
   // get or create the scene node
   Ogre::SceneManager* sceneManager = m_displayContext->getSceneManager();
@@ -158,7 +158,7 @@ MeshVisual::MeshVisual(rviz::DisplayContext* context, size_t displayID, size_t m
 
 MeshVisual::~MeshVisual()
 {
-  ROS_INFO("Destroying MeshVisual %lu_TexturedMesh_%lu_%lu", m_prefix, m_postfix, m_random);
+  // ROS_INFO("Destroying MeshVisual %lu_TexturedMesh_%lu_%lu", m_prefix, m_postfix, m_random);
 
   reset();
 
@@ -189,7 +189,7 @@ MeshVisual::~MeshVisual()
 
 void MeshVisual::reset()
 {
-  ROS_INFO("Resetting MeshVisual %lu_TexturedMesh_%lu_%lu", m_prefix, m_postfix, m_random);
+  // ROS_INFO("Resetting MeshVisual %lu_TexturedMesh_%lu_%lu", m_prefix, m_postfix, m_random);
 
   std::stringstream sstm;
 
@@ -804,7 +804,7 @@ bool MeshVisual::setNormals(const vector<Normal>& normals)
   // check if there are vertex normals for each vertex
   if (normals.size() == m_geometry.vertices.size())
   {
-    ROS_INFO("Received %lu vertex normals.", normals.size());
+    // ROS_INFO("Received %lu vertex normals.", normals.size());
     m_vertex_normals_enabled = true;
   }
   else if (normals.size() > 0)
@@ -833,7 +833,7 @@ bool MeshVisual::setVertexColors(const vector<Color>& vertexColors)
   // check if there are vertex colors for each vertex
   if (vertexColors.size() == m_geometry.vertices.size())
   {
-    ROS_INFO("Received %lu vertex colors.", vertexColors.size());
+    // ROS_INFO("Received %lu vertex colors.", vertexColors.size());
     m_vertex_colors_enabled = true;
   }
   else
@@ -914,7 +914,7 @@ bool MeshVisual::setMaterials(const vector<Material>& materials, const vector<Te
   // check if there is a material index for each cluster
   if (materials.size() >= 0)
   {
-    ROS_INFO("Received %lu materials.", materials.size());
+    // ROS_INFO("Received %lu materials.", materials.size());
     m_materials_enabled = true;  // enable materials
   }
   else
@@ -927,7 +927,7 @@ bool MeshVisual::setMaterials(const vector<Material>& materials, const vector<Te
   // check if there are texture coords for each vertex
   if (texCoords.size() == m_geometry.vertices.size())
   {
-    ROS_INFO("Received %lu texture coords.", texCoords.size());
+    // ROS_INFO("Received %lu texture coords.", texCoords.size());
     m_texture_coords_enabled = true;  // enable texture coords
     m_textures_enabled = true;        // enable textures
   }

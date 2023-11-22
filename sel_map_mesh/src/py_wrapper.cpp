@@ -36,7 +36,7 @@ extern "C"
     void _sel_map_TriangularMesh_create(void* self);
 
     // The advance method of TriangularMesh
-    void _sel_map_TriangularMesh_advance(void* self, const _sel_map_matrix* _points, const _sel_map_matrix* _classpoints, double z_height);
+    void _sel_map_TriangularMesh_advance(void* self, const _sel_map_matrix* _points, const _sel_map_matrix* _classpoints, double mean_pred, double z_height);
     
     // Shift the mesh
     void _sel_map_TriangularMesh_shiftMeshElements(void* self, int x_elem_shift, int y_elem_shift);
@@ -87,7 +87,7 @@ void _sel_map_TriangularMesh_create(void* self)
 }
 
 // advance the mesh
-void _sel_map_TriangularMesh_advance(void* self, const _sel_map_matrix* _points, const _sel_map_matrix* _classpoints, double z_height)
+void _sel_map_TriangularMesh_advance(void* self, const _sel_map_matrix* _points, const _sel_map_matrix* _classpoints, double mean_pred, double z_height)
 {
     auto ref = getRef(self);
     // translate the arguments into Eigen
@@ -105,7 +105,7 @@ void _sel_map_TriangularMesh_advance(void* self, const _sel_map_matrix* _points,
         classpoints.~Map();
         new(&classpoints) Eigen::Map<const RowArray_t, Eigen::Aligned16>((const double*)_classpoints->data, _classpoints->rows, _classpoints->cols);
     }
-    ref->advance(classpoints, z_height);
+    ref->advance(classpoints, mean_pred, z_height);
 }
 
 // Shift the mesh

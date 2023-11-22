@@ -111,11 +111,11 @@ void TriangularMesh::setUpMesh()
     }
 }
 
-void TriangularMesh::advance(const Eigen::Ref<const RowArray_t, Eigen::Aligned16>& points, double z_height)
+void TriangularMesh::advance(const Eigen::Ref<const RowArray_t, Eigen::Aligned16>& points, double mean_pred, double z_height)
 {
     originHeight = z_height;
     // Add points to the mesh and get the updated elements
-    std::vector<unsigned int> updateElem = addPointsToMesh(points);
+    std::vector<unsigned int> updateElem = addPointsToMesh(points, mean_pred);
 
     // If there's nothing left to do from here, then just skip.
     if (updateElem.size() == 0) return;
@@ -218,7 +218,7 @@ Eigen::ArrayXi TriangularMesh::generatePointBinning(const Eigen::Ref<const RowAr
     return binning;
 }
 
-std::vector<unsigned int> TriangularMesh::addPointsToMesh(const Eigen::Ref<const RowArray_t, Eigen::Aligned16>& points)
+std::vector<unsigned int> TriangularMesh::addPointsToMesh(const Eigen::Ref<const RowArray_t, Eigen::Aligned16>& points, double mean_pred)
 {
     Eigen::ArrayXi bins = generatePointBinning(points);
     bool classpoints = points.cols() > 4;
@@ -264,7 +264,7 @@ std::vector<unsigned int> TriangularMesh::addPointsToMesh(const Eigen::Ref<const
             element.active = true;
 
             
-            if(classpoints) element.addSegmentation(indices[el_idx], points, gens[threadId], one_hot);
+            if(classpoints) element.addSegmentation(indices[el_idx], points, mean_pred, gens[threadId], one_hot);
 
             // Get new idx's
             indices[el_idx] = element.addPoints(indices[el_idx], points, gens[threadId]);

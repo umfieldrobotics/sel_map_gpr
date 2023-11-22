@@ -424,7 +424,7 @@ void MeshDisplay::updateBufferSize()
 
 void MeshDisplay::updateMesh()
 {
-  ROS_INFO("Mesh Display: Update");
+  //ROS_INFO("Mesh Display: Update");
 
   bool showFaces = false;
   bool showTextures = false;
@@ -856,7 +856,7 @@ void MeshDisplay::requestVertexColors(std::string uuid)
   srv.request.uuid = uuid;
   if (m_vertexColorClient.call(srv))
   {
-    ROS_INFO("Successful vertex colors service call!");
+    // ROS_INFO("Successful vertex colors service call!");
     mesh_msgs::MeshVertexColorsStamped::ConstPtr meshVertexColors =
         boost::make_shared<const mesh_msgs::MeshVertexColorsStamped>(srv.response.mesh_vertex_colors_stamped);
 
@@ -956,18 +956,18 @@ void MeshDisplay::requestMaterials(std::string uuid)
 
 void MeshDisplay::cacheVertexCosts(std::string layer, const std::vector<float>& costs)
 {
-  ROS_INFO_STREAM("Cache vertex cost map '" << layer << "' for UUID ");
+  //ROS_INFO_STREAM("Cache vertex cost map '" << layer << "' for UUID ");
 
   // insert into cache
   auto it = m_costCache.find(layer);
   if (it != m_costCache.end())
   {
-    ROS_INFO_STREAM("The cost layer \"" << layer << "\" has been updated.");
+    //ROS_INFO_STREAM("The cost layer \"" << layer << "\" has been updated.");
     m_costCache.erase(layer);
   }
   else
   {
-    ROS_INFO_STREAM("The cost layer \"" << layer << "\" has been added.");
+    //ROS_INFO_STREAM("The cost layer \"" << layer << "\" has been added.");
     m_selectVertexCostMap->addOptionStd(layer, m_selectVertexCostMap->numChildren());
   }
 

@@ -74,7 +74,7 @@ namespace sel_map::mesh{
          *          (N, K) - A size N set of K (aka classes) semantic labeles to add to the element.
          */
         // void addSegmentation(const sel_map::core::ElemArray<double, sel_map::core::ElemArrayDynamic>& classes);
-        void addSegmentation(const std::vector<unsigned int>& new_classifications, const Eigen::Ref<const RowArray_t, Eigen::Aligned16>& points, std::mt19937& gen, bool one_hot);
+        void addSegmentation(const std::vector<unsigned int>& new_classifications, const Eigen::Ref<const RowArray_t, Eigen::Aligned16>& points, double mean_pred, std::mt19937& gen, bool one_hot);
 
         /**
          * @brief Does cleanup on the object to remove points / free up space

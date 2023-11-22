@@ -132,10 +132,10 @@ class TriangularMesh():
         f_create.argtypes = [ctypes.c_void_p]
         f_create(self.obj)
 
-    def advance(self, points = None, classpoints = None, z_height=None):
+    def advance(self, points = None, classpoints = None, mean_pred = None, z_height=None):
         # advance the mesh with the given points
         f_advance = lib._sel_map_TriangularMesh_advance
-        f_advance.argtypes = [ctypes.c_void_p, ctypes.POINTER(_sel_map_matrix), ctypes.POINTER(_sel_map_matrix), ctypes.c_double]
+        f_advance.argtypes = [ctypes.c_void_p, ctypes.POINTER(_sel_map_matrix), ctypes.POINTER(_sel_map_matrix), ctypes.c_double, ctypes.c_double]
         #void* ptr, _sel_map_matrix* _points, _sel_map_matrix* _classpoints
         # Fill in stuff for function call
         points_s = _sel_map_matrix()
@@ -147,7 +147,7 @@ class TriangularMesh():
         else:
             self.originHeight = z_height
         # advance the mesh
-        f_advance(self.obj, ctypes.byref(points_s), ctypes.byref(classpoints_s), z_height)
+        f_advance(self.obj, ctypes.byref(points_s), ctypes.byref(classpoints_s), mean_pred, z_height)
 
     def shiftMeshElements(self, x_elem_shift = 0, y_elem_shift = 0):
         # shift the mesh by n elements in each specified direction

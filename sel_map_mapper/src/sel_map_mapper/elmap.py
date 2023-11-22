@@ -59,7 +59,7 @@ class SaveOptions():
 
 class Map:
     __slots__ = 'uuid', 'enableMat', 'saveOpts', 'thresholdElemToMove', 'timestamp', \
-                'pub_mesh', 'pub_costs', 'pub_camera', 'frame', 'mesh', 'origin', 'cached_origin', 'camera', 'gpr', 'past_poses', 'lock', \
+                'pub_mesh', 'pub_costs', 'pub_camera', 'frame', 'mesh', 'origin', 'cached_origin', 'camera', 'gpr', 'lock', \
                 'vertices', 'normals', 'simplices', 'classes', 'meshMsg', 'heightCosts', 'pub_tf', 'map_tf_msg', \
                 'mesh_mat_service', 'materials', 'daemon_thread', 'thread_rate', 'save', 'publish', 'threaded', 'crash'
     def __init__(self, mesh, camera=None, gpr=None, mesh_topic='mesh', mat_service='get_materials', enableMat = False, saveOpts=SaveOptions(), thresholdElemToMove=1, threadRate=20, threaded=True, mapCameraPosePublisher=None):
@@ -129,8 +129,6 @@ class Map:
             self.camera = CameraSensor()
 
         self.gpr = GPRSensor()
-
-        self.past_poses = []
 
         # For threading the publisher seperately
         self.lock = threading.Lock()
@@ -270,12 +268,7 @@ class Map:
         noggin_to_footprint = np.array([0.648, 0, -0.083]) # this is in the noggin frame
         
         if gpr is True: # rather confusing but actually for the gpr the camera_pose is the transform from the odom to base_footprint
-            self.past_poses.append(camera_pose)
-
-            try:
-                points, mean_pred = self.gpr.getProjectedPointCloudWithLabels(gpr_trace=gpr_trace, poses=self.past_poses)
-            except Exception as e:
-                print(e)
+            points, mean_pred = self.gpr.getProjectedPointCloudWithLabels(gpr_trace=gpr_trace)
 
             # rotate and translate from noggin_link frame to base_footprint
             rot_noggin_to_footprint = Rotation.from_euler('xyz', [3.141593, 0, 3.141593]).as_matrix()
@@ -284,10 +277,10 @@ class Map:
             # rotate and translate from base_footprint to noggin_link
             rot_euler = Rotation.from_quat(camera_pose.rotation).as_euler('xyz')
             rot_footprint_to_odom = Rotation.from_euler('xyz', rot_euler).as_matrix()
-
+            print(camera_pose)
             points[:,:3] = np.dot(points[:,:3], rot_footprint_to_odom.T) + camera_pose.location
 
-            # # Transform to map origin (sensor frame to world frame)
+            # Transform to map origin (sensor frame to world frame)
             points[:,:3] = points[:,:3] - self.origin.location
 
         else:
@@ -311,10 +304,6 @@ class Map:
         # axes = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.001, origin=[0, 0, 0])
         # o3d.visualization.draw_geometries([pcd, axes])
 
-        # TODO: FIGURE OUT HOW TO PASS WHETHER IT"S CAM OR GPR
-        # if gpr is True:
-        #     points = np.concatenate((points, points), axis=0)
-        
         # Advance and clean the map (lazy can be true if the points pushed to the map is relatively constant)
         self.mesh.advance(classpoints=points, mean_pred=mean_pred, z_height=camera_pose.location[2])
         self.mesh.clean(lazy=True)
@@ -439,4 +428,3 @@ class Map:
                 # self.heightCosts.mesh_vertex_costs = MeshVertexCosts(costs=self.vertices[:,2])
                 # self.pub_tf.sendTransform(self.map_tf_msg)
             self.save = self.publish = False
-    

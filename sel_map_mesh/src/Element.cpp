@@ -59,7 +59,7 @@ std::vector<unsigned int> Element<Tmesh_t>::addPoints(const std::vector<unsigned
 };
 
 template <typename Tmesh_t>
-void Element<Tmesh_t>::addSegmentation(const std::vector<unsigned int>& new_classifications, const Eigen::Ref<const RowArray_t, Eigen::Aligned16>& points, std::mt19937& gen, bool one_hot)
+void Element<Tmesh_t>::addSegmentation(const std::vector<unsigned int>& new_classifications, const Eigen::Ref<const RowArray_t, Eigen::Aligned16>& points, double mean_pred, std::mt19937& gen, bool one_hot)
 {
     // Short circuit if there are no classifications
     if(new_classifications.size() == 0) return;
@@ -77,16 +77,21 @@ void Element<Tmesh_t>::addSegmentation(const std::vector<unsigned int>& new_clas
     // to the dirichlet parameters to perform Dirichlet MAP update.
     if(one_hot){
         for(auto class_idx : classes.get()){
-            ++dirichletParamsForTerrainClass((int)points(class_idx, 4));
+            dirichletParamsForTerrainClass((int)points(class_idx, 4)) += mean_pred; // add the probability value (between 0 and 1) to weight
         }
     } else{
         for(auto class_idx : classes.get())
         {
             Eigen::Index idx;
             points(class_idx, Eigen::seq(Eigen::fix<4>,Eigen::last)).maxCoeff(&idx);
-            ++dirichletParamsForTerrainClass(idx);
+            dirichletParamsForTerrainClass(idx) += mean_pred;
         }
     }
+    
+    // for prototyping purposes only: add asphalt class
+    // std::cout << "one " << dirichletParamsForTerrainClass.rows() << " " << dirichletParamsForTerrainClass.cols() << " " << dirichletParamsForTerrainClass[6] << std::endl;
+
+    // dirichletParamsForTerrainClass[11] += 100;
 
     // If this is groundTruth, one-hot encode.
     if (parentMesh.get().groundTruth){
