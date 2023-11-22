@@ -201,8 +201,8 @@ def sel_map_node(mesh_bounds, elementLength, thresholdElemToMove):
 
 
     # Subscribe
-    sync_cam_sub = message_filters.ApproximateTimeSynchronizer(cam_sub_list, queue_size=queue_size, slop=sync_slop)
-    sync_cam_sub.registerCallback(syncedCamCallback)
+    # sync_cam_sub = message_filters.ApproximateTimeSynchronizer(cam_sub_list, queue_size=queue_size, slop=sync_slop)
+    # sync_cam_sub.registerCallback(syncedCamCallback)
 
     # normal subscriber for gpr since there's just one topic
     rospy.Subscriber("/gpr/traces", GPRTrace, unsyncedGPRCallback, queue_size=queue_size)
