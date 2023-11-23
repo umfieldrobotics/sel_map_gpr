@@ -17,19 +17,18 @@ include(ExternalProject)
 find_package(Git REQUIRED)
 
 ## Add the CSAIL Semantic Segmentation Network from Git
-set(CSAIL_SEMSEG_BUILD_DIR   ${CMAKE_BINARY_DIR}/ext_src/csail_semseg)
-set(CSAIL_SEMSEG_INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/mit_semseg)
-set(CSAIL_SEMSEG_INCLUDE_DIR ${CSAIL_SEMSEG_INSTALL_DIR})
+set(APPLE_DMS_BUILD_DIR   ${CMAKE_BINARY_DIR}/ext_src/apple_dense_materials)
+set(APPLE_DMS_INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/apple_dense_materials)
+set(APPLE_DMS_INCLUDE_DIR ${APPLE_DMS_INSTALL_DIR})
 ExternalProject_Add(
-  csail_semseg
-  GIT_REPOSITORY https://github.com/CSAILVision/semantic-segmentation-pytorch.git
-  PREFIX ${CSAIL_SEMSEG_BUILD_DIR}
-  GIT_TAG 8f27c9b97d2ca7c6e05333d5766d144bf7d8c31b
+  apple_dense_materials
+  GIT_REPOSITORY https://github.com/apple/ml-dms-dataset.git
+  PREFIX ${APPLE_DMS_BUILD_DIR}
+  GIT_TAG 7e8c1c1652e589ed74370934fdda644c495cf34c
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND 
-    ${CMAKE_COMMAND} -E copy_directory ${CSAIL_SEMSEG_BUILD_DIR}/src/csail_semseg/mit_semseg ${CSAIL_SEMSEG_INSTALL_DIR}/
-    && ${CMAKE_COMMAND} -E copy_directory ${CSAIL_SEMSEG_BUILD_DIR}/src/csail_semseg/config ${CSAIL_SEMSEG_INSTALL_DIR}/config/
+    ${CMAKE_COMMAND} -E copy_directory ${APPLE_DMS_BUILD_DIR}/src/apple_dense_materials ${APPLE_DMS_INSTALL_DIR}/
   TEST_COMMAND ""
 )
 
