@@ -1,0 +1,222 @@
+# Properties for ADE20K from https://github.com/CSAILVision/semantic-segmentation-pytorch/blob/master/data/object150_info.csv 
+
+asphalt:
+  name: 'asphalt'
+  index: 0
+  color:
+    R: 255
+    G: 0
+    B: 0
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+concrete:
+  name: 'concrete'
+  index: 0
+  color:
+    R: 0
+    G: 0
+    B: 255
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+metal:
+  name: 'metal'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+road_marking:
+  name: 'road_marking'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+fabric:
+  name: 'fabric'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+glass:
+  name: 'glass'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+plaster:
+  name: 'plaster'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+plastic:
+  name: 'plastic'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+rubber:
+  name: 'rubber'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+sand:
+  name: 'sand'
+  index: 0
+  color:
+    R: 255
+    G: 255
+    B: 0
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+gravel:
+  name: 'gravel'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+ceramic:
+  name: 'ceramic'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+cobblestone:
+  name: 'cobblestone'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+brick:
+  name: 'brick'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+grass:
+  name: 'grass'
+  index: 0
+  color:
+    R: 0
+    G: 255
+    B: 0
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+wood:
+  name: 'wood'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+leaf:
+  name: 'leaf'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+water:
+  name: 'water'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+human:
+  name: 'human'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+sky:
+  name: 'sky'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []

@@ -1,3 +1,5 @@
 fastscnn_wrapper/src/fast_scnn/
 mit_semseg_wrapper/src/mit_semseg/
 pytorch_encoding_wrapper/src/encoding/
+apple_dense_materials_wrapper/src/apple_dense_materials
+mmsformer_wrapper/src/mmsformer

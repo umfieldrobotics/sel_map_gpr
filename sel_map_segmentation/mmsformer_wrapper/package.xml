@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>mmsformer_wrapper</name>
+  <version>0.0.0</version>
+  <description>Template for wrapping semantic segmentation networks. Check the README.md included.</description>
+
+  <maintainer email="adamli@umich.edu">Adam Li</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>
