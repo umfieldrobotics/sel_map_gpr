@@ -20,7 +20,7 @@ class GPRSensor():
     def __init__(self, location=np.array([0,0,0]), rotation=np.zeros((3,3))):
         self.z_offset = 0.083 # m offset from GPR base to ground (more specifically the bottom of the wheels)
 
-        self.cumulative_traces = np.zeros((200, 22))
+        self.cumulative_traces = np.zeros((200, 21))
 
         self.model = AlexNet(num_classes=4)
         self.model_path = '/home/anjashep-frog-lab/Research/gpr_mapping/gpr-clustering/out/alexnet_out/weights_200_16_1700582696.6877162.pt'
@@ -62,8 +62,10 @@ class GPRSensor():
 
         # ADE20K class to color mapping TODO add other network cmaps
         map_ade20k = [6, 11, 9, 46]
+        map_pascal = [40, 44, 28, 0]
+        map_dms = [46, 8, 13, 29]
 
-        pred_mapped = map_ade20k[pred.item()]
+        pred_mapped = map_dms[pred.item()]
         pred_probability = probabilities[0][pred.item()].item()
     
         return pred_mapped, pred_probability

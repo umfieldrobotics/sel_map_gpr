@@ -1,0 +1,497 @@
+# Properties for MCubeS from: https://docs.google.com/spreadsheets/d/1DNkU8vRn8eg-YsWPxOabzKa6E9c50YKwxh_2fsVeOV4/edit?usp=sharing
+
+bone:
+  name: 'bone'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+brick:
+  name: 'brick'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+cardboard:
+  name: 'cardboard'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+carpet:
+  name: 'carpet'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+ceilingtile:
+  name: 'ceilingtile'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+ceramic:
+  name: 'ceramic'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+chalkboard:
+  name: 'chalkboard'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+clutter:
+  name: 'clutter'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+concrete:
+  name: 'concrete'
+  index: 0
+  color:
+    R: 0
+    G: 0
+    B: 255
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+cork:
+  name: 'cork'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+engineeredstone:
+  name: 'engineeredstone'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+fabric:
+  name: 'fabric'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+fire:
+  name: 'fire'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+foliage:
+  name: 'foliage'
+  index: 0
+  color:
+    R: 0
+    G: 255
+    B: 0
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+food:
+  name: 'food'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+fur:
+  name: 'fur'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+gemstone:
+  name: 'gemstone'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+glass:
+  name: 'glass'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+hair:
+  name: 'hair'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+ice:
+  name: 'ice'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+leather:
+  name: 'leather'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+metal:
+  name: 'metal'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+mirror:
+  name: 'mirror'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+paint:
+  name: 'paint'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+paper:
+  name: 'paper'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+photograph:
+  name: 'photograph'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+clearplastic:
+  name: 'clearplastic'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+plastic:
+  name: 'plastic'
+  index: 0
+  color:
+    R: 0
+    G: 255
+    B: 0
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+rubber:
+  name: 'rubber'
+  index: 0
+  color:
+    R: 0
+    G: 255
+    B: 0
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+sand:
+  name: 'sand'
+  index: 0
+  color:
+    R: 255
+    G: 255
+    B: 0
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+skin:
+  name: 'skin'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+sky:
+  name: 'sky'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+snow:
+  name: 'snow'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+soil:
+  name: 'soil'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+stone:
+  name: 'stone'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+polishedstone:
+  name: 'polishedstone'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+tile:
+  name: 'tile'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+wallpaper:
+  name: 'wallpaper'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+water:
+  name: 'water'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+wax:
+  name: 'wax'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+whiteboard:
+  name: 'whiteboard'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+wicker:
+  name: 'wicker'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+wood:
+  name: 'wood'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+treewood:
+  name: 'treewood'
+  index: 0
+  color:
+    R: 177
+    G: 177
+    B: 177
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []
+asphalt:
+  name: 'asphalt'
+  index: 0
+  color:
+    R: 255
+    G: 0
+    B: 0
+  friction:
+    mean: null
+    variance: null
+  soft_contact: []

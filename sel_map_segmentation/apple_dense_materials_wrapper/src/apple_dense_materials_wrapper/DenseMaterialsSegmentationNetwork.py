@@ -140,15 +140,17 @@ class DenseMaterialsSegmentationNetwork():
 			else:
 				new_prediction = np.append(new_prediction, res, axis=1)
 
+		mean_prob = 0.7 # DOES NOT RETURN ANY CONFIDENCES
+
         # Return the scores
 		if one_hot and return_numpy:
-			return prediction
+			return prediction, mean_prob
 		elif one_hot and not return_numpy:
-			return torch.tensor.convert_to_tensor(prediction).cuda()
+			return torch.tensor.convert_to_tensor(prediction).cuda(), mean_prob
 		elif not one_hot and return_numpy:
-			return new_prediction
+			return new_prediction, mean_prob
 		else:
-			return torch.tensor(new_prediction).cuda()
+			return torch.tensor(new_prediction).cuda(), mean_prob
 
 
 # if __name__ == '__main__':
