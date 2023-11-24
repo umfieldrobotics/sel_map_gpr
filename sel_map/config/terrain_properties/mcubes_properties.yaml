@@ -1,4 +1,4 @@
-# Properties for ADE20K from https://github.com/CSAILVision/semantic-segmentation-pytorch/blob/master/data/object150_info.csv 
+# Properties for MCubeS from: https://github.com/CSIPlab/MMSFormer/blob/main/semseg/datasets/mcubes.py
 
 asphalt:
   name: 'asphalt'
