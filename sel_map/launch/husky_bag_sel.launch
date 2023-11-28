@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <launch>
   <!-- Mesh Bounds -->
-  <arg name="bound_xy" default="10"/>
+  <arg name="bound_xy" default="25"/>
   <arg name="bound_z" default="4"/>
   <arg name="elem_size" default="0.05"/>
   <arg name="threshold_elem_move" default="10"/>

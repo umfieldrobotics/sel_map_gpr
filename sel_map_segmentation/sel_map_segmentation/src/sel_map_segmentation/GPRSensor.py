@@ -41,6 +41,8 @@ class GPRSensor():
         self.position_list = None
         self.z_rot_list = None
 
+        self.count = 0
+
     # Return the predicted class of the image and the probability output from the network
     def runClassification(self, gpr_image):
         # Take gpr radargram image from numpy array to tensor
@@ -65,12 +67,13 @@ class GPRSensor():
         map_pascal = [40, 44, 28, 0]
         map_dms = [46, 8, 13, 29]
 
-        pred_mapped = map_dms[pred.item()]
+        pred_mapped = map_ade20k[pred.item()]
         pred_probability = probabilities[0][pred.item()].item()
-    
+
         return pred_mapped, pred_probability
     
     def calculateGPRPointCloudShape(self):
+        width = 0.75 # m
         # note: one pose added to pose list at each GPR callback, so each trace corresponds to one pose
 
         # get last 32 poses (aka last 32 traces, aka one image) but if it's less than that like at the start of a scene then just take those
@@ -97,7 +100,7 @@ class GPRSensor():
         spl_z = CubicSpline(t, last_32[:, 2])
 
         # Interpolated points
-        t_interpolated = np.linspace(0, t[-1], 100)
+        t_interpolated = np.linspace(0, t[-1], 300)
         x_interpolated = spl_x(t_interpolated)
         y_interpolated = spl_y(t_interpolated)
         z_interpolated = spl_z(t_interpolated)
@@ -110,10 +113,10 @@ class GPRSensor():
 
         for i in range(len(t_interpolated)):
             idx = round(i / len(t_interpolated) * (len(self.z_rot_list)-1))
-            x_interp_right[i] += math.sin(-self.z_rot_list[idx])
-            y_interp_right[i] += math.cos(-self.z_rot_list[idx])
-            x_interp_left[i] -= math.sin(-self.z_rot_list[idx])
-            y_interp_left[i] -= math.cos(-self.z_rot_list[idx])
+            x_interp_right[i] += math.sin(-self.z_rot_list[idx]) * width
+            y_interp_right[i] += math.cos(-self.z_rot_list[idx]) * width
+            x_interp_left[i] -= math.sin(-self.z_rot_list[idx]) * width
+            y_interp_left[i] -= math.cos(-self.z_rot_list[idx]) * width
         across = None
 
         for i in range(len(t_interpolated)):
@@ -122,17 +125,17 @@ class GPRSensor():
             else:
                 across = np.vstack((across, np.linspace([x_interp_left[i], y_interp_left[i], z_interpolated[i]], [x_interp_right[i], y_interp_right[i], z_interpolated[i]], 100)))
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(last_32[:, 0], last_32[:, 1], last_32[:, 2], color='red', label='Original Points')
-        ax.plot(x_interpolated, y_interpolated, z_interpolated, color='blue', label='Fitted Spline')
-        ax.scatter(x_interp_right, y_interp_right, z_interpolated, color='black')
-        ax.scatter(x_interp_left, y_interp_left, z_interpolated, color='black')
-        # ax.scatter(across[:, 0], across[:, 1], across[:, 2], color='green')
-        ax.legend()
-        ax.set_zlim3d(-1, 1)
+        # fig = plt.figure()
+        # ax = fig.add_subplot(111, projection='3d')
+        # ax.scatter(last_32[:, 0], last_32[:, 1], last_32[:, 2], color='red', label='Original Points')
+        # ax.plot(x_interpolated, y_interpolated, z_interpolated, color='blue', label='Fitted Spline')
+        # ax.scatter(x_interp_right, y_interp_right, z_interpolated, color='black')
+        # ax.scatter(x_interp_left, y_interp_left, z_interpolated, color='black')
+        # # ax.scatter(across[:, 0], across[:, 1], across[:, 2], color='green')
+        # ax.legend()
+        # ax.set_zlim3d(-1, 1)
 
-        fig.savefig('/home/anjashep-frog-lab/Desktop/test.png', format='png')
+        # fig.savefig('/home/anjashep-frog-lab/Desktop/test.png', format='png')
 
         return across
 
@@ -174,6 +177,8 @@ class GPRSensor():
         score.fill(pred)
         pc = np.hstack((pc, var, score))
 
+        print('pred: ' + str(pred))
+
         # # the image is 32 pixels long (32 seconds), so at a speed of, for example, 0.1 m/s:
         # speed = 0.146 # m/s
         # dist = 32 * speed
@@ -185,4 +190,4 @@ class GPRSensor():
         # score.fill(pred)
         # pc = np.vstack((x.flatten(), y.flatten(), z.flatten(), var, score)).T
 
-        return pc, prob
+        return pc, prob * 10
