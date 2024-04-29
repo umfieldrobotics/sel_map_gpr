@@ -7,9 +7,9 @@ update_policy: fifo
 # Configurable section
 cameras_registered:
   realsense:
-    image_rectified: /camera/color/image_raw
-    depth_registered: /camera/aligned_depth_to_color/image_raw
-    camera_info: /camera/aligned_depth_to_color/camera_info
+    image_rectified: /zed2i/zed_node/rgb/image_rect_color
+    depth_registered: /zed2i/zed_node/depth/depth_registered
+    camera_info: /zed2i/zed_node/rgb/camera_info
     # By not specifying these, we lookup the transform frame instead. (They do no need to be specified)
     pose_with_covariance: ''
     pose: ''

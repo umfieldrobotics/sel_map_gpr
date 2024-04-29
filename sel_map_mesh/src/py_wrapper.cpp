@@ -8,6 +8,9 @@
 #include <cstdarg>
 #include <Eigen/Dense>
 #include <iostream>
+#include <mutex>
+
+std::mutex _sel_map_mesh_mutex;
 
 extern "C"
 {
@@ -105,14 +108,18 @@ void _sel_map_TriangularMesh_advance(void* self, const _sel_map_matrix* _points,
         classpoints.~Map();
         new(&classpoints) Eigen::Map<const RowArray_t, Eigen::Aligned16>((const double*)_classpoints->data, _classpoints->rows, _classpoints->cols);
     }
+    _sel_map_mesh_mutex.lock();
     ref->advance(classpoints, mean_pred, z_height);
+    _sel_map_mesh_mutex.unlock();
 }
 
 // Shift the mesh
 void _sel_map_TriangularMesh_shiftMeshElements(void* self, int x_elem_shift, int y_elem_shift)
 {
     auto ref = getRef(self);
+    _sel_map_mesh_mutex.lock();
     ref->shiftMeshElements(x_elem_shift, y_elem_shift);
+    _sel_map_mesh_mutex.unlock();
 }
 
 // Get mesh parameters
@@ -226,6 +233,8 @@ void _sel_map_TriangularMesh_getTrimmed(void* self, _sel_map_matrix* vertexVecto
 void _sel_map_TriangularMesh_clean(void* self, uint8_t lazy)
 {
     auto ref = getRef(self);
+    _sel_map_mesh_mutex.lock();
     ref->clean(lazy);
+    _sel_map_mesh_mutex.unlock();
 }
 

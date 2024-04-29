@@ -309,8 +309,11 @@ class Map:
         # o3d.visualization.draw_geometries([pcd, axes])
 
         # Advance and clean the map (lazy can be true if the points pushed to the map is relatively constant)
-        self.mesh.advance(classpoints=points, mean_pred=mean_pred, z_height=camera_pose.location[2])
-        self.mesh.clean(lazy=True)
+        try:
+            self.mesh.advance(classpoints=points, mean_pred=mean_pred, z_height=camera_pose.location[2])
+            self.mesh.clean(lazy=True)
+        except Exception as e:
+            print(e)
 
         # Publish the camera pose synchronously
         if self.pub_camera is not None:
@@ -360,8 +363,8 @@ class Map:
                 copyData()
         
         # if we're not threaded, then run the publishSave routine now
-        if not self.threaded:
-            self.publishSaveMap()
+        # if not self.threaded:
+        self.publishSaveMap()
 
     def publishSaveMap(self):
         # frame = deepcopy(self.frame)

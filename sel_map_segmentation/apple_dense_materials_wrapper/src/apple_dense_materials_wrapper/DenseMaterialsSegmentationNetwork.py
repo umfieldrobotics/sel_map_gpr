@@ -153,8 +153,14 @@ class DenseMaterialsSegmentationNetwork():
 			return torch.tensor(new_prediction).cuda(), mean_prob
 
 
-# if __name__ == '__main__':
-# 	image = Image.open('/home/anjashep-frog-lab/Desktop/00001.jpg').convert('RGB')
+# m = DenseMaterialsSegmentationNetwork()
 
-# 	network = DenseMaterialsSegmentationNetwork()
-# 	scores = network.runSegmentation(image)
+# img = Image.open('/home/anjashep-frog-lab/Desktop/000000.png')
+
+# ret = m.runSegmentation(img)
+
+# ret = np.argmax(ret[0], axis=0)
+
+# import matplotlib.pyplot as plt
+# plt.imshow(ret, cmap='gray')
+# plt.show()

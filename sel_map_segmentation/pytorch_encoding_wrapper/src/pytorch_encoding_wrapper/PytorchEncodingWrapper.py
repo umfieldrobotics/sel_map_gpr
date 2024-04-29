@@ -1,9 +1,11 @@
 import os
 import torch
-import rospkg
+# import rospkg
 
 from torchvision import transforms
 from PIL import Image
+import sys
+sys.path.append('/home/anjashep-frog-lab/Research/gpr_mapping/catkin_ws/src/sel_map_gpr/sel_map_segmentation/pytorch_encoding_wrapper/src/')
 import encoding
 
 
@@ -46,3 +48,11 @@ class PytorchEncodingWrapper():
         else:
             return scores[:,:height,:width], mean
 
+
+# m = PytorchEncodingWrapper()
+
+# img = Image('/home/anjashep-frog-lab/Desktop/000000.png')
+
+# ret = m.runSegmentation(img)
+
+# print(ret)

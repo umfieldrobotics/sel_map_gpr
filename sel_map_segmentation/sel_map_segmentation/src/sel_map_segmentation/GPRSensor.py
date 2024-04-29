@@ -4,6 +4,7 @@ import numpy as np
 import open3d as o3d
 import time
 import torch
+import rospy
 
 from torchvision import transforms as T
 
@@ -42,6 +43,8 @@ class GPRSensor():
         self.z_rot_list = None
 
         self.count = 0
+
+        self.bypass = rospy.get_param("semseg/package", "") ==  "" # if this is blank, then we are bypassing segmentation
 
     # Return the predicted class of the image and the probability output from the network
     def runClassification(self, gpr_image):
@@ -172,10 +175,14 @@ class GPRSensor():
         # add variance and class prediction
         var = np.empty((pc.shape[0], 1))
         var.fill(7)
-        score = np.empty((pc.shape[0], 1))
-        # label
-        score.fill(pred)
-        pc = np.hstack((pc, var, score))
+        
+        if self.bypass:
+            pc = np.hstack((pc, var))
+        else:
+            # label
+            score = np.empty((pc.shape[0], 1))
+            score.fill(pred)
+            pc = np.hstack((pc, var, score))
 
         print('pred: ' + str(pred))
 
@@ -190,4 +197,4 @@ class GPRSensor():
         # score.fill(pred)
         # pc = np.vstack((x.flatten(), y.flatten(), z.flatten(), var, score)).T
 
-        return pc, prob * 10
+        return pc, prob * 20
